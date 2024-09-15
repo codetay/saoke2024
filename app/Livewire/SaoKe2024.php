@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
@@ -31,6 +32,15 @@ class SaoKe2024 extends Component implements HasForms, HasTable
                 TextColumn::make('donated_at')
                     ->label('Ngày giao dịch')
                     ->dateTime('d/m/Y'),
+                TextColumn::make('bank')
+                    ->label('Ngân hàng')
+                    ->formatStateUsing(function ($state) {
+                        return match ($state) {
+                            'vcb' => 'Vietcombank',
+                            'icb' => 'Vietinbank',
+                            default => $state,
+                        };
+                    }),
                 TextColumn::make('code')
                     ->label('Mã giao dịch')
                     ->searchable(),
@@ -42,6 +52,11 @@ class SaoKe2024 extends Component implements HasForms, HasTable
                     ->searchable(),
             ])
             ->filters([
+                SelectFilter::make('bank')
+                    ->options([
+                        'vcb' => 'Vietcombank',
+                        'icb' => 'Vietinbank',
+                    ]),
                 Tables\Filters\Filter::make('amount')
                     ->form([
                         Forms\Components\TextInput::make('amount_from')
@@ -88,7 +103,8 @@ class SaoKe2024 extends Component implements HasForms, HasTable
                 // ...
             ])
             ->paginated([10, 20, 25, 50, 100])
-            ->defaultPaginationPageOption(20);
+            ->defaultPaginationPageOption(20)
+            ->defaultSort('donated_at');
     }
 
     public function render()

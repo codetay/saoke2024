@@ -58,16 +58,15 @@ class ProcessVcbTransaction extends Command
                 PREG_SPLIT_NO_EMPTY
             );
 
-            foreach ($blocks as $blockIndex => $block) {
-                // Skip header block of first page
-                if ($blockIndex === 0) {
-                    continue;
-                }
-
+            foreach ($blocks as $block) {
                 $block = trim($block);
                 $lines = explode(PHP_EOL, $block);
 
                 $date = trim(array_shift($lines));
+                if (! preg_match('/\d{2}\/\d{2}\/\d{4}/', $date)) {
+                    continue;
+                }
+
                 $donatedDate = Carbon::createFromFormat('d/m/Y', $date);
 
                 $code = trim(array_shift($lines));
@@ -102,6 +101,7 @@ class ProcessVcbTransaction extends Command
                     Transaction::updateOrCreate([
                         'donated_at' => $donatedDate,
                         'code' => $code,
+                        'bank' => 'vcb',
                     ], [
                         'amount' => $amount,
                         'description' => trim($descriptionParts[0]),
