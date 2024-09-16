@@ -9,4 +9,5 @@
         <li>- <a href="https://www.facebook.com/mttqvietnam/posts/pfbid0cGpdUA8JFuB5TPLFX5E1GmhBSkYs99v9rRLY5sY2mTD1pJ16Cq1BvtkrSXLfnsESl" target="_blank" rel="noopener noreferrer nofollow">Số tiền ủng hộ qua số tài khoản Vietinbank CT1111 từ ngày 10/9/2024 đến ngày 12/9/2024</a></li>
     </ul>
     {{ $this->table }}
+    <div class="mx-auto text-sm text-slate-500">@sourcecode: <a href="https://github.com/codetay/saoke2024">https://github.com/codetay/saoke2024</a></div>
 </div>

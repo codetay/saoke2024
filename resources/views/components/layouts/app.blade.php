@@ -7,8 +7,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <title>Check var mttq, Check bill ủng hộ miền bắc, check bill mttq</title>
-        <meta name="description" content="Check var mttq, Check bill ủng hộ miền bắc, check bill mttq">
+        <title>Check var mttq, Check bill ủng hộ miền bắc, check bill mttq, sao kê chuyển khoản bill mttq</title>
+        <meta name="description" content="Check var mttq, Check bill ủng hộ miền bắc, check bill mttq, sao kê chuyển khoản bill mttq">
 
         <style>
             [x-cloak] {
