@@ -8,23 +8,22 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Smalot\PdfParser\Parser;
-use Spatie\PdfToText\Pdf;
 
-class ProcessVietinbankTransaction extends Command
+class ProcessVcb11Transaction extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'vietinbank:handle {filename} {--binPath=}';
+    protected $signature = 'vcb-11092024:handle {filename}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Handle Vietinbank transaction data file';
+    protected $description = 'Handle VCB transaction data file';
 
     /**
      * Execute the console command.
@@ -35,7 +34,6 @@ class ProcessVietinbankTransaction extends Command
     {
 
         $file = $this->argument('filename');
-        $binPath = $this->option('binPath');
 
         $filepath = database_path('transactions/'.$file);
 
@@ -45,21 +43,16 @@ class ProcessVietinbankTransaction extends Command
             return;
         }
 
-        // Get page info
         $parser = new Parser;
         $pdf = $parser->parseFile($filepath);
 
-        $totalPage = count($pdf->getPages());
+        $pages = $pdf->getPages();
 
-        // Pdftotext start page from 1
-        for ($i = 1; $i <= $totalPage; $i++) {
-            $text = (new Pdf($binPath))
-                ->setPdf($filepath)
-                ->setOptions(['layout', '-f '.$i, '-l '.$i])
-                ->text();
+        foreach ($pages as $pageIndex => $page) {
+            $text = $page->getText();
 
             $blocks = preg_split(
-                "/(?=\d{2}\/\d{2}\/\d{4})/",
+                '/(?=\d{2}\/\d{2}\/\d{4})/',
                 $text,
                 -1,
                 PREG_SPLIT_NO_EMPTY
@@ -91,26 +84,26 @@ class ProcessVietinbankTransaction extends Command
                 // Remove amount from block
                 $block = str_replace($amounts[0], '', $block);
 
-                // Remove datetime from block
-                $block = preg_replace('/\d{2}:\d{2}:\d{2}/', '', $block);
-
                 // Remove leading and trailing spaces
-                $description = preg_replace('/\s+/', ' ', $block);
-
+                $description = substr(trim(preg_replace(['/"/', '/\s+/'], ' ', $block)), 0, 254);
                 $amount = str_replace('.', '', $amounts[0]);
 
                 try {
                     Transaction::create([
                         'donated_at' => $donatedDate,
-                        'bank' => 'icb',
+                        'bank' => 'vcb',
                         'amount' => $amount,
                         'description' => $description,
                     ]);
                 } catch (QueryException $e) {
                     $this->error(sprintf('Error: %s', $e->getMessage()));
-                    break;
+                    break 2;
                 }
+
             }
+
+            $this->info(sprintf('Page %d processed successfully!', $pageIndex + 1));
+
         }
     }
 }
